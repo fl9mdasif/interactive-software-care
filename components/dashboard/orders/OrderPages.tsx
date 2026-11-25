@@ -1,15 +1,32 @@
 "use client";
 
 import { useGetLeadQuery } from "@/redux/api/leadApi";
+import { useGetMeetingQuery } from "@/redux/api/meetingApi";
 import { useGetOrderQuery } from "@/redux/api/orderApi";
 import { ErrorState, LinkButton, Loading, PageHeader, EmptyState } from "../ui";
 import { OrderForm } from "./OrderForm";
 
-export function NewOrder({ leadId }: { leadId?: string }) {
+function FromMeeting({ id }: { id: string }) {
+  const { data: meeting, error, refetch } = useGetMeetingQuery(id);
+  if (error) return <ErrorState error={error} retry={refetch} />;
+  if (!meeting) return <Loading />;
+  if (meeting.order)
+    return (
+      <EmptyState message={`This meeting already has order ${meeting.order.orderNo}.`}>
+        <LinkButton href={`/dashboard/orders/${meeting.order._id}`} variant="secondary">
+          Open order
+        </LinkButton>
+      </EmptyState>
+    );
+  return <OrderForm key={meeting._id} meeting={meeting} />;
+}
+
+export function NewOrder({ leadId, meetingId }: { leadId?: string; meetingId?: string }) {
   const { data: lead, error, refetch } = useGetLeadQuery(leadId!, { skip: !leadId });
 
   let body;
-  if (!leadId) body = <OrderForm />;
+  if (meetingId) body = <FromMeeting id={meetingId} />;
+  else if (!leadId) body = <OrderForm />;
   else if (error) body = <ErrorState error={error} retry={refetch} />;
   else if (!lead) body = <Loading />;
   else if (lead.order)
@@ -24,7 +41,7 @@ export function NewOrder({ leadId }: { leadId?: string }) {
 
   return (
     <>
-      <PageHeader title="New order" description={leadId ? "Check the details copied from the lead, then add the price." : undefined} />
+      <PageHeader title="New order" description={leadId || meetingId ? "Check the copied details, then add the price." : undefined} />
       {body}
     </>
   );

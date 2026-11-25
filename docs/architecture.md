@@ -246,6 +246,7 @@ the header, footer, ambient layer and analytics. The dashboard has none of them.
 | `/dashboard` | all | Work queue; revenue cards and chart for admins |
 | `/dashboard/orders` | all | List, pipeline board, detail with payments and history |
 | `/dashboard/leads` | all | Contact form enquiries, convert to order |
+| `/dashboard/meetings` | all | Cal.com bookings, notes, outcome, convert to order; admins can sync |
 | `/dashboard/sales` | admin | Received money, breakdowns, dues, CSV export |
 | `/dashboard/projects`, `/products`, `/categories` | admin | Website content |
 | `/dashboard/users` | admin | Team accounts |

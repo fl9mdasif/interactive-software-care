@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { AlarmClock, Hourglass, Inbox, Plus, ShoppingCart, TrendingUp, Wallet } from "lucide-react";
-import { formatDate, money, toDay } from "@/lib/format";
+import { formatDate, formatTime, money, toDay } from "@/lib/format";
 import { useGetOverviewQuery } from "@/redux/api/orderApi";
 import { useGetSalesSeriesQuery, useGetSalesSummaryQuery } from "@/redux/api/salesApi";
 import type { TOrderCard } from "@/types";
 import { BarList, SalesChart } from "./charts/Charts";
 import { change } from "./SalesPage";
-import { Badge, Card, EmptyState, ErrorState, LinkButton, Loading, PageHeader, StatCard } from "./ui";
+import { Badge, buttonClass, Card, EmptyState, ErrorState, LinkButton, Loading, PageHeader, StatCard } from "./ui";
 import { useRole } from "./useRole";
 
 function Revenue() {
@@ -85,6 +85,40 @@ export function OverviewPage() {
       {isAdmin && <Revenue />}
 
       <div className="grid gap-4 xl:grid-cols-2">
+        <Card
+          title={`Upcoming meetings${data.meetingsToday ? ` (${data.meetingsToday} today)` : ""}`}
+          className="xl:col-span-2"
+          action={
+            <LinkButton href="/dashboard/meetings" variant="ghost" size="sm">
+              All meetings
+            </LinkButton>
+          }
+        >
+          {data.meetings.length ? (
+            <ul>
+              {data.meetings.map((m) => (
+                <li key={m._id} className="flex flex-wrap items-center justify-between gap-2 border-b border-line py-2.5 text-sm last:border-0">
+                  <span className="min-w-0">
+                    <span className="font-medium">{m.attendee.name ?? m.title}</span>
+                    <span className="block text-xs text-text-dim">
+                      {formatDate(m.start)}, {formatTime(m.start)} · {m.title}
+                    </span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <Badge value={m.status} />
+                    {m.meetingUrl && (
+                      <a href={m.meetingUrl} target="_blank" rel="noopener noreferrer" className={buttonClass("secondary", "sm")}>
+                        Join
+                      </a>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState message="No upcoming meetings." />
+          )}
+        </Card>
         <Card title="Late">
           <OrderList orders={data.overdue} empty="Nothing is late." />
         </Card>

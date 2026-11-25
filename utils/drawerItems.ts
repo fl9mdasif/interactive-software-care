@@ -1,5 +1,5 @@
 import {
-  Boxes, FolderKanban, Inbox, LayoutDashboard, LineChart, Settings, ShoppingCart, Tags, Users,
+  Boxes, CalendarClock, FolderKanban, Inbox, LayoutDashboard, LineChart, Settings, ShoppingCart, Tags, Users,
 } from "lucide-react";
 import { USER_ROLE } from "@/contains/role";
 import type { DrawerItem, UserRole } from "@/types";
@@ -10,6 +10,7 @@ const ITEMS: DrawerItem[] = [
   { title: "Orders", path: "/dashboard/orders", group: "Tracking", icon: ShoppingCart },
   { title: "Sales", path: "/dashboard/sales", group: "Tracking", icon: LineChart, adminOnly: true },
   { title: "Leads", path: "/dashboard/leads", group: "Tracking", icon: Inbox },
+  { title: "Meetings", path: "/dashboard/meetings", group: "Tracking", icon: CalendarClock },
 
   { title: "Projects", path: "/dashboard/projects", group: "Content", icon: FolderKanban, adminOnly: true },
   { title: "Products", path: "/dashboard/products", group: "Content", icon: Boxes, adminOnly: true },

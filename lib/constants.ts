@@ -1,5 +1,5 @@
 import type {
-  TProductPublishStatus, TProjectStatus, TOrderPriority, TOrderSource, TOrderStatus, TOrderType, TPaymentMethod, TPaymentStatus,
+  TMeetingOutcome, TProductPublishStatus, TProjectStatus, TOrderPriority, TOrderSource, TOrderStatus, TOrderType, TPaymentMethod, TPaymentStatus,
 } from "@/types";
 
 export const PROJECT_STATUSES: TProjectStatus[] = ["in_progress", "delivered", "live", "under_maintenance", "retired"];
@@ -7,6 +7,8 @@ export const PROJECT_STATUSES: TProjectStatus[] = ["in_progress", "delivered", "
 export const PRODUCT_STATUSES: TProductPublishStatus[] = [
   "draft", "coming_soon", "published", "under_maintenance", "discontinued",
 ];
+
+export const MEETING_OUTCOMES: TMeetingOutcome[] = ["none", "completed", "no_show", "follow_up"];
 
 export const ORDER_STATUSES: TOrderStatus[] = [
   "pending", "confirmed", "in_progress", "review", "delivered", "completed", "on_hold", "cancelled",

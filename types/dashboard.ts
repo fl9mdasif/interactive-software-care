@@ -46,6 +46,7 @@ export interface TOrder {
   orderNo: string;
   customer: TCustomer;
   lead?: { _id: string; name: string; email: string; status: string; message: string } | null;
+  meeting?: { _id: string; title: string; start: string } | null;
   source: TOrderSource;
   type: TOrderType;
   service?: { _id: string; title: string; slug: string } | null;
@@ -75,6 +76,7 @@ export interface TOrder {
 export interface TOrderInput {
   customer: TCustomer;
   lead?: string;
+  meeting?: string;
   source: TOrderSource;
   type: TOrderType;
   service: string;
@@ -109,6 +111,8 @@ export interface TOverview {
   upcoming: TOrderCard[];
   recent: TOrderCard[];
   newLeads: number;
+  meetings: Pick<TMeeting, "_id" | "title" | "start" | "status" | "meetingUrl" | "attendee">[];
+  meetingsToday: number;
   recentLeads: { _id: string; name: string; email: string; createdAt: string }[];
 }
 
@@ -156,5 +160,26 @@ export interface TLead {
   status: TLeadStatus;
   source?: string;
   createdAt: string;
+  order?: { _id: string; orderNo: string } | null;
+}
+
+export type TMeetingStatus = "pending" | "accepted" | "cancelled" | "rejected";
+export type TMeetingOutcome = "none" | "completed" | "no_show" | "follow_up";
+
+export interface TMeeting {
+  _id: string;
+  calUid: string;
+  title: string;
+  start: string;
+  end: string;
+  attendee: { name?: string; email?: string; phone?: string; timeZone?: string };
+  guests: string[];
+  location?: string;
+  meetingUrl?: string;
+  bookingNote?: string;
+  cancelReason?: string;
+  status: TMeetingStatus;
+  outcome: TMeetingOutcome;
+  internalNote?: string;
   order?: { _id: string; orderNo: string } | null;
 }

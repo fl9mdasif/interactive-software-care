@@ -28,6 +28,9 @@ export const formatDateTime = (value: string) =>
     day: "2-digit", month: "short", hour: "numeric", minute: "2-digit", hour12: true, timeZone: TIMEZONE,
   });
 
+export const formatTime = (value: string) =>
+  new Date(value).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: TIMEZONE });
+
 /** YYYY-MM-DD in Bangladesh time, for date inputs and API ranges. */
 export const toDay = (value: string | Date = new Date()) =>
   new Date(value).toLocaleDateString("en-CA", { timeZone: TIMEZONE });

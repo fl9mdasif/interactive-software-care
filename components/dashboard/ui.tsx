@@ -292,6 +292,7 @@ const TONES = {
 };
 const STATUS_TONE: Record<string, keyof typeof TONES> = {
   confirmed: "info", in_progress: "info", review: "info", contacted: "info", coming_soon: "info",
+  accepted: "good", rejected: "bad",
   live: "good", under_maintenance: "warn", discontinued: "bad",
   delivered: "good", completed: "good", paid: "good", converted: "good", published: "good", active: "good",
   pending: "warn", on_hold: "warn", partial: "warn", new: "warn", high: "warn",

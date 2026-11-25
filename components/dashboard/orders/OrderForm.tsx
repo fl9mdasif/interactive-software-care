@@ -6,21 +6,21 @@ import { ORDER_PRIORITIES, ORDER_SOURCES, ORDER_TYPES } from "@/lib/constants";
 import { money, toDay } from "@/lib/format";
 import { useGetAdminProductsQuery, useGetServiceOptionsQuery } from "@/redux/api/contentApi";
 import { useCreateOrderMutation, useGetAssigneesQuery, useUpdateOrderMutation } from "@/redux/api/orderApi";
-import type { TLead, TOrder, TOrderInput } from "@/types";
+import type { TLead, TMeeting, TOrder, TOrderInput } from "@/types";
 import { run } from "../toast";
 import { Button, Card, Field, Input, Select, Textarea } from "../ui";
 import { useRole } from "../useRole";
 
-const initial = (order?: TOrder, lead?: TLead) => ({
-  name: order?.customer.name ?? lead?.name ?? "",
-  phone: order?.customer.phone ?? lead?.phone ?? "",
-  email: order?.customer.email ?? lead?.email ?? "",
+const initial = (order?: TOrder, lead?: TLead, meeting?: TMeeting) => ({
+  name: order?.customer.name ?? lead?.name ?? meeting?.attendee.name ?? "",
+  phone: order?.customer.phone ?? lead?.phone ?? meeting?.attendee.phone ?? "",
+  email: order?.customer.email ?? lead?.email ?? meeting?.attendee.email ?? "",
   company: order?.customer.company ?? "",
   country: order?.customer.country ?? "",
-  title: order?.title ?? (lead?.serviceInterested ? `${lead.serviceInterested.title} for ${lead.name}` : ""),
-  description: order?.description ?? lead?.message ?? "",
+  title: order?.title ?? (lead?.serviceInterested ? `${lead.serviceInterested.title} for ${lead.name}` : (meeting?.title.slice(0, 200) ?? "")),
+  description: order?.description ?? lead?.message ?? [meeting?.bookingNote, meeting?.internalNote].filter(Boolean).join("\n\n"),
   type: order?.type ?? "project",
-  source: order?.source ?? (lead ? "website" : "direct"),
+  source: order?.source ?? (lead || meeting ? "website" : "direct"),
   service: order?.service?._id ?? lead?.serviceInterested?._id ?? "",
   product: order?.product?._id ?? "",
   priority: order?.priority ?? "normal",
@@ -33,10 +33,10 @@ const initial = (order?: TOrder, lead?: TLead) => ({
   discount: order?.discount ? String(order.discount) : "",
 });
 
-export function OrderForm({ order, lead }: { order?: TOrder; lead?: TLead }) {
+export function OrderForm({ order, lead, meeting }: { order?: TOrder; lead?: TLead; meeting?: TMeeting }) {
   const router = useRouter();
   const { isAdmin } = useRole();
-  const [form, setForm] = useState(() => initial(order, lead));
+  const [form, setForm] = useState(() => initial(order, lead, meeting));
   const { data: services = [] } = useGetServiceOptionsQuery();
   const { data: products = [] } = useGetAdminProductsQuery(undefined, { skip: !isAdmin });
   const { data: team = [] } = useGetAssigneesQuery();
@@ -76,6 +76,7 @@ export function OrderForm({ order, lead }: { order?: TOrder; lead?: TLead }) {
     if (!order) {
       data.status = form.status as TOrderInput["status"];
       if (lead) data.lead = lead._id;
+      if (meeting) data.meeting = meeting._id;
     }
 
     const saved = order

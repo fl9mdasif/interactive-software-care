@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Check, Mail, MessageCircle, Pencil, Phone, Plus } from "lucide-react";
 import { ORDER_FLOW } from "@/lib/constants";
+import { whatsappLink } from "@/lib/contactLinks";
 import { formatDate, formatDateTime, label, money } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -19,12 +20,6 @@ import { useRole } from "../useRole";
 import { isOverdue } from "./OrdersPage";
 import { PaymentModal } from "./PaymentModal";
 import { ReasonModal } from "./ReasonModal";
-
-/** wa.me needs the country code and digits only; local numbers are Bangladeshi. */
-const whatsapp = (phone: string) => {
-  const digits = phone.replace(/\D/g, "").replace(/^00/, "");
-  return `https://wa.me/${/^01\d{9}$/.test(digits) ? `88${digits}` : digits}`;
-};
 
 function Fact({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -291,7 +286,7 @@ export function OrderDetail({ id }: { id: string }) {
                   <a className="flex items-center gap-2 hover:text-acid" href={`tel:${customer.phone}`}>
                     <Phone className="size-4" /> {customer.phone}
                   </a>
-                  <a className="flex items-center gap-2 hover:text-acid" href={whatsapp(customer.phone)} target="_blank" rel="noopener noreferrer">
+                  <a className="flex items-center gap-2 hover:text-acid" href={whatsappLink(customer.phone)} target="_blank" rel="noopener noreferrer">
                     <MessageCircle className="size-4" /> Message on WhatsApp
                   </a>
                 </>
@@ -323,6 +318,13 @@ export function OrderDetail({ id }: { id: string }) {
               <Fact title="Assigned to">{order.assignedTo?.username ?? "Nobody yet"}</Fact>
               {order.discount > 0 && <Fact title="Discount">{money(order.discount, order.currency)}</Fact>}
               {order.currency === "USD" && <Fact title="Order rate">1 USD = {order.exchangeRate} BDT</Fact>}
+              {order.meeting && (
+                <Fact title="From meeting">
+                  <Link className="text-acid" href="/dashboard/meetings">
+                    {formatDate(order.meeting.start)}
+                  </Link>
+                </Fact>
+              )}
               {order.lead && (
                 <Fact title="From lead">
                   <Link className="text-acid" href="/dashboard/leads">
