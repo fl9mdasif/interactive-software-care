@@ -6,15 +6,15 @@ import { SITE } from "./site";
 /**
  * The brand mark, inlined as a data URI.
  *
- * Uses the plated variant because these cards are dark: the bare navy logo is
- * 1.31:1 against this background and all but disappears in a link preview.
+ * The artwork is 3:2 and carries its own dark background, so it sits directly
+ * on these dark cards.
  *
  * Read once at module load rather than fetched per render — an OG card that
  * depends on a network request fails intermittently, and each crawler only
  * generates the preview once.
  */
 const LOGO = `data:image/png;base64,${fs
-  .readFileSync(path.join(process.cwd(), "app/assets/logo-images/derived/mark-plate.png"))
+  .readFileSync(path.join(process.cwd(), "app/assets/logo-images/logo.png"))
   .toString("base64")}`;
 
 export const OG_SIZE = { width: 1200, height: 630 };
@@ -54,7 +54,7 @@ export function renderOgImage({ eyebrow, title, description }: OgInput) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={LOGO} width={56} height={56} alt="" />
+          <img src={LOGO} width={84} height={56} alt="" />
           <div style={{ color: "#F4F6FA", fontSize: 26, fontWeight: 700, letterSpacing: -0.5 }}>{SITE.name}</div>
         </div>
 

@@ -6,9 +6,9 @@ export const SITE = {
   description:
     "Interactive Software Care is a Dhaka-based software, AI and SaaS engineering partner. Web platforms, mobile apps, custom SaaS and automation, built by one accountable team.",
   email: "hello@isoftwarecare.com",
-  phone: "+880 1746 818461",
-  phoneDisplay: "+880 1746 818461",
-  whatsapp: "+880 1746 818461",
+  phone: "+88 01605 855 875",
+  phoneDisplay: "+88 01605 855 875",
+  whatsapp: "+88 01605 855 875",
   address: "Mirpur Tower, Mirpur - 1, Dhaka - 1216, Bangladesh",
   facebook: "https://www.facebook.com/isoftwarecare",
 };

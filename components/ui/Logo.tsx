@@ -1,6 +1,6 @@
 import Image from "next/image";
-import markPlate from "@/app/assets/logo-images/derived/mark-plate.png";
-import markBare from "@/app/assets/logo-images/derived/mark-bare.png";
+import markPlate from "@/app/assets/logo-images/logo.png";
+import markBare from "@/app/assets/logo-images/logo.png";
 
 /**
  * The brand mark.
