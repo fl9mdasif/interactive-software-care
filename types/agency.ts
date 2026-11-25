@@ -15,6 +15,8 @@ export interface TService {
 }
 
 export interface TPortfolioItem {
+  /** Absent on the sample projects used when the API is empty. */
+  status?: TProjectStatus;
   _id: string;
   title: string;
   slug: string;
@@ -70,4 +72,37 @@ export interface TLeadInput {
   budget?: string;
   source?: string;
   website: string;
+}
+
+export type TProductType = "saas" | "ai" | "tool";
+export type TProductPublishStatus = "draft" | "coming_soon" | "published" | "under_maintenance" | "discontinued";
+export type TProjectStatus = "in_progress" | "delivered" | "live" | "under_maintenance" | "retired";
+
+export interface TPricingPlan {
+  name: string;
+  price: number;
+  currency: "BDT" | "USD";
+  period: "month" | "year" | "once";
+  features: string[];
+}
+
+export interface TProduct {
+  _id: string;
+  name: string;
+  slug: string;
+  tagline: string;
+  description: string;
+  type: TProductType;
+  features: string[];
+  techStack: string[];
+  pricingPlans: TPricingPlan[];
+  thumbnail: string;
+  gallery: string[];
+  demoUrl?: string;
+  liveUrl?: string;
+  status: TProductPublishStatus;
+  isFeatured: boolean;
+  order: number;
+  metaTitle?: string;
+  metaDescription?: string;
 }

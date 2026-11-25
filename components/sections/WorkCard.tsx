@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { CldImg } from "@/components/ui/CldImg";
+import { label } from "@/lib/format";
+import { excerpt } from "@/lib/richText";
 import { categoryName, cn } from "@/lib/utils";
 import type { TPortfolioItem } from "@/types";
 
@@ -22,10 +24,11 @@ export function WorkCard({ item, index }: { item: TPortfolioItem; index: number 
           />
         )}
         {tag && <span className="tag">{tag}</span>}
+        {item.status && <span className="tag tag-status">{label(item.status)}</span>}
       </div>
       <div className="work-body">
         <h3>{item.title}</h3>
-        <p>{item.description}</p>
+        <p>{excerpt(item.description, 180)}</p>
         {item.techStack?.length > 0 && (
           <div className="meta">
             {item.techStack.slice(0, 4).map((t) => (

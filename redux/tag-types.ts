@@ -7,6 +7,9 @@ export enum tagTypes {
   testimonials = "testimonials",
   leads = "leads",
   settings = "settings",
+  orders = "orders",
+  sales = "sales",
+  products = "products",
 }
 
 export const tagTypesList = Object.values(tagTypes);

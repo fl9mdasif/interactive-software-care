@@ -56,10 +56,19 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.users],
     }),
+
+    activateUser: build.mutation({
+      query: (id: string) => ({
+        url: `/users/${id}/activate`,
+        method: "PATCH",
+      }),
+      invalidatesTags: [tagTypes.users],
+    }),
   }),
 });
 
 export const {
+  useActivateUserMutation,
   useCreateStaffMutation,
   useGetAllUsersQuery,
   useGetUserByIdQuery,

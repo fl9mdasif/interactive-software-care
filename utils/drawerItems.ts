@@ -1,42 +1,29 @@
 import {
-  LayoutDashboard,
-  Tags,
-  Package,
-  ShoppingCart,
-  LineChart,
-  AlertTriangle,
-  Activity,
-  Users,
-  Settings,
+  Boxes, FolderKanban, Inbox, LayoutDashboard, LineChart, Settings, ShoppingCart, Tags, Users,
 } from "lucide-react";
 import { USER_ROLE } from "@/contains/role";
 import type { DrawerItem, UserRole } from "@/types";
 
-// Sidebar structure per PRD §2 — General / Tracking / Management.
-// Labels and grouping are deliberate, mirroring the owner's own naming; do not relabel.
-export const drawerItems = (role: UserRole): DrawerItem[] => {
-  const items: DrawerItem[] = [
-    { title: "Dashboard", path: "/dashboard", group: "General", icon: LayoutDashboard },
-    { title: "Category", path: "/dashboard/category", group: "General", icon: Tags },
-    { title: "Inventory / Product", path: "/dashboard/inventory", group: "General", icon: Package },
+const ITEMS: DrawerItem[] = [
+  { title: "Overview", path: "/dashboard", group: "General", icon: LayoutDashboard },
 
-    { title: "Order", path: "/dashboard/order", group: "Tracking", icon: ShoppingCart },
-    { title: "Sales tracking", path: "/dashboard/sales", group: "Tracking", icon: LineChart },
-    { title: "Low Stock Quantity", path: "/dashboard/low-stock", group: "Tracking", icon: AlertTriangle },
-    { title: "Inventory Activity", path: "/dashboard/activity", group: "Tracking", icon: Activity },
+  { title: "Orders", path: "/dashboard/orders", group: "Tracking", icon: ShoppingCart },
+  { title: "Sales", path: "/dashboard/sales", group: "Tracking", icon: LineChart, adminOnly: true },
+  { title: "Leads", path: "/dashboard/leads", group: "Tracking", icon: Inbox },
 
-    { title: "Settings", path: "/dashboard/settings", group: "Management", icon: Settings },
-  ];
+  { title: "Projects", path: "/dashboard/projects", group: "Content", icon: FolderKanban, adminOnly: true },
+  { title: "Products", path: "/dashboard/products", group: "Content", icon: Boxes, adminOnly: true },
+  { title: "Categories", path: "/dashboard/categories", group: "Content", icon: Tags, adminOnly: true },
 
-  // User Management: hidden for staff, visible for admin/superAdmin
-  if (role === USER_ROLE.ADMIN || role === USER_ROLE.SUPER_ADMIN) {
-    items.push({
-      title: "User Management",
-      path: "/dashboard/users",
-      group: "Management",
-      icon: Users,
-    });
-  }
+  { title: "Users", path: "/dashboard/users", group: "Management", icon: Users, adminOnly: true },
+  { title: "Settings", path: "/dashboard/settings", group: "Management", icon: Settings },
+];
 
-  return items;
-};
+export const isAdminRole = (role?: UserRole) => role === USER_ROLE.ADMIN || role === USER_ROLE.SUPER_ADMIN;
+
+export const drawerItems = (role: UserRole) => ITEMS.filter((item) => !item.adminOnly || isAdminRole(role));
+
+/** The menu entry that owns a path, e.g. /dashboard/orders/123 belongs to Orders. */
+export const activeItem = (pathname: string) =>
+  [...ITEMS].reverse().find((i) => pathname === i.path || (i.path !== "/dashboard" && pathname.startsWith(`${i.path}/`))) ??
+  ITEMS[0];

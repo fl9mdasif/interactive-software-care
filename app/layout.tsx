@@ -1,14 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
-import { Ambient } from "@/components/layout/Ambient";
-import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
 import { Providers } from "@/components/layout/Providers";
-import { Analytics, GtmNoScript } from "@/components/analytics/Analytics";
-import { JsonLd } from "@/components/ui/JsonLd";
 import { ThemeScript } from "@/components/theme/ThemeScript";
-import { organizationSchema } from "@/lib/schema";
-import { getServices, getSettings } from "@/lib/api";
+import { getSettings } from "@/lib/api";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -59,27 +53,14 @@ export const viewport: Viewport = {
   ],
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [settings, services] = await Promise.all([getSettings(), getServices()]);
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
       <body>
-        <GtmNoScript gtmId={settings.gtmId} />
-        <a href="#main" className="skip-link">
-          Skip to content
-        </a>
-        <Providers>
-          <Ambient />
-          <Header />
-          <main id="main">{children}</main>
-          <Footer settings={settings} services={services} />
-        </Providers>
-        <JsonLd data={organizationSchema(settings)} />
-        <Analytics settings={settings} />
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

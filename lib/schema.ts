@@ -1,5 +1,6 @@
-import type { TPortfolioItem, TService, TSettings } from "@/types";
+import type { TPortfolioItem, TProduct, TService, TSettings } from "@/types";
 import { contactLinks } from "./contact";
+import { excerpt } from "./richText";
 import { SITE } from "./site";
 
 const base = () => SITE.url.replace(/\/$/, "");
@@ -77,11 +78,36 @@ export function caseStudySchema(item: TPortfolioItem) {
     "@context": "https://schema.org",
     "@type": "CreativeWork",
     name: item.title,
-    description: item.description,
+    description: excerpt(item.description, 300),
     url: `${url}/work/${item.slug}`,
     ...(item.thumbnail ? { image: item.thumbnail } : {}),
     creator: { "@type": "Organization", "@id": `${url}/#organization`, name: SITE.name },
     ...(item.techStack?.length ? { keywords: item.techStack.join(", ") } : {}),
+  };
+}
+
+export function productSchema(product: TProduct) {
+  const url = base();
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: product.name,
+    description: product.tagline,
+    url: `${url}/products/${product.slug}`,
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    ...(product.thumbnail ? { image: product.thumbnail } : {}),
+    ...(product.status === "published" && product.pricingPlans.length
+      ? {
+          offers: product.pricingPlans.map((p) => ({
+            "@type": "Offer",
+            name: p.name,
+            price: p.price,
+            priceCurrency: p.currency,
+          })),
+        }
+      : {}),
+    publisher: { "@type": "Organization", "@id": `${url}/#organization`, name: SITE.name },
   };
 }
 

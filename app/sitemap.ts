@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getPortfolio, getServices } from "@/lib/api";
+import { getPortfolio, getProducts, getServices } from "@/lib/api";
 import { SITE } from "@/lib/site";
 
 // Served from the site itself rather than the API. A sitemap hosted on another
@@ -9,13 +9,14 @@ export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE.url.replace(/\/$/, "");
-  const [services, work] = await Promise.all([getServices(), getPortfolio()]);
+  const [services, work, products] = await Promise.all([getServices(), getPortfolio(), getProducts()]);
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
     { url: `${base}/services`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${base}/work`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${base}/products`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${base}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/book`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
@@ -28,6 +29,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticRoutes,
     ...services.map((s) => ({
       url: `${base}/services/${s.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    ...products.map((p) => ({
+      url: `${base}/products/${p.slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.7,

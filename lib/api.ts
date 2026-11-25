@@ -1,5 +1,5 @@
 import "server-only";
-import type { TPortfolioItem, TService, TSettings, TTestimonial } from "@/types";
+import type { TPortfolioItem, TProduct, TService, TSettings, TTestimonial } from "@/types";
 import { FALLBACK_PORTFOLIO, FALLBACK_SERVICES, FALLBACK_SETTINGS, FALLBACK_TESTIMONIALS } from "./fallback";
 import { API_URL } from "./site";
 
@@ -46,6 +46,15 @@ export async function getPortfolio(params: { featured?: boolean } = {}) {
 export async function getPortfolioItem(slug: string) {
   const live = await get<TPortfolioItem>(`/portfolio/${encodeURIComponent(slug)}`, "portfolio");
   return live ?? FALLBACK_PORTFOLIO.find((p) => p.slug === slug) ?? null;
+}
+
+// Products have no fallback: showing an invented product would mislead buyers.
+export async function getProducts() {
+  return (await get<TProduct[]>("/products", "products")) ?? [];
+}
+
+export async function getProduct(slug: string) {
+  return get<TProduct>(`/products/${encodeURIComponent(slug)}`, "products");
 }
 
 export async function getTestimonials() {

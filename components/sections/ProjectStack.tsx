@@ -1,3 +1,4 @@
+import { excerpt } from "@/lib/richText";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { CldImg } from "@/components/ui/CldImg";
@@ -33,7 +34,7 @@ export function ProjectStack({ items }: { items: TPortfolioItem[] }) {
                   <h3 className="stack-title" id={`stack-${item.slug}`}>
                     {item.title}
                   </h3>
-                  <p className="stack-desc">{item.description}</p>
+                  <p className="stack-desc">{excerpt(item.description, 220)}</p>
                   {item.techStack?.length > 0 && (
                     <ul className="stack-tags" aria-label="Tech stack">
                       {item.techStack.slice(0, 5).map((t) => (

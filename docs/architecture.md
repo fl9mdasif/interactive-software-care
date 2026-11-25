@@ -15,6 +15,7 @@ Visual rules: see `docs/design.md`. Agent working rules: see `docs/agent.md`.
 | Client data | Redux Toolkit + RTK Query over an axios base query (`redux/`, `helpers/axios/`) |
 | Server data | Native `fetch` in Server Components through `lib/api.ts`, with ISR |
 | Images | Cloudinary delivery URLs rendered with `next/image` |
+| Charts | Recharts (dashboard only) |
 | Icons | Inline SVG for the marketing site (matches `home.html`), `lucide-react` for dashboard UI |
 | Toasts | `react-hot-toast` |
 
@@ -30,6 +31,11 @@ app/                          # App Router: routes, layouts, metadata
   services/[slug]/page.tsx
   work/page.tsx
   work/[slug]/page.tsx
+  products/page.tsx           # public routes sit in app/(site)/
+  products/[slug]/page.tsx
+  dashboard/                  # admin screens, see section 10
+  login/page.tsx
+  api/upload/route.ts
   contact/page.tsx
   book/page.tsx               # Cal.com booking page
   about/page.tsx
@@ -114,6 +120,7 @@ Base URL: `NEXT_PUBLIC_BACKEND_API_URL` (for example `http://localhost:5000/api/
 | GET | `/testimonials` | public | Approved only, newest first, `relatedPortfolioItem` populated `{title, slug}` |
 | GET | `/categories` | public | Categories |
 | GET | `/settings` | public | Singleton: contact email, phone, WhatsApp, address, social links, marketing IDs |
+| GET | `/products`, `/products/:slug` | public | Products except drafts. Query: `type`, `isFeatured=true` |
 | POST | `/leads` | public | Contact form. Rate limit: 10 per 15 min per IP |
 | — | `/sitemap.xml` | public | Served by the API at its root, not by this app |
 
@@ -142,7 +149,7 @@ TLeadInput    { name, email, phone?, message, serviceInterested? (ObjectId), bud
 
 - `lib/cloudinary.ts` exports `cld(url, { w, h, crop, gravity })`. It inserts a transformation segment after `/upload/` (`f_auto,q_auto,c_fill,w_800`). Non-Cloudinary URLs pass through unchanged.
 - `next.config.ts` allows `res.cloudinary.com` in `images.remotePatterns`. Components pass the already-transformed URL to `next/image` with `unoptimized` so Cloudinary, not Next, does the resizing (no double processing, no Vercel image quota).
-- Uploads happen only in the future admin dashboard, through a signed server route. The public site never uploads.
+- Uploads happen only in the admin dashboard, through a signed server route (see section 10). The public site never uploads.
 
 ## 7. Environment variables
 
@@ -154,8 +161,9 @@ TLeadInput    { name, email, phone?, message, serviceInterested? (ObjectId), bud
 | `NEXT_PUBLIC_SITE_URL` | `https://isoftwarecare.com` | Canonical URLs, Open Graph, robots, sitemap |
 | `NEXT_PUBLIC_CAL_LINK` | `isoftwarecare/30min` | Cal.com booking target; blank disables the embed |
 | `NEXT_PUBLIC_CAL_ORIGIN` | `https://cal.com` | Only for Cal EU or self-hosted |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | | Server only, for `app/api/upload` |
 
-No secrets belong here — everything prefixed `NEXT_PUBLIC_` ships to the browser.
+Everything prefixed `NEXT_PUBLIC_` ships to the browser, so never put a secret there.
 The mail credentials live in `../server/.env`.
 
 The server's `CLIENT_URL` must include this site's origin, or the browser blocks the lead form with a CORS error.
@@ -227,13 +235,42 @@ the account's key could not be made to authenticate.
 - GSAP runs in one client component, `MotionRoot`, which scans the DOM for `data-*` hooks (`data-fade`, `data-stagger`, `data-count`, `data-tilt`, `.reveal`) after each route change. Sections stay Server Components and only carry attributes.
 - Every animation must degrade to fully visible content with no JS and with `prefers-reduced-motion: reduce`.
 
-## 10. Dashboard groundwork
+## 10. Admin dashboard
 
-`redux/api/authApi.ts`, `userApi.ts`, `categoryApi.ts` and
-`services/ImageUploader.tsx` exist for the Phase 4 admin dashboard. Nothing in
-`app/` imports them. The genuinely dead files from the earlier inventory project
-(`productApi`, `orderApi`, `activityApi`, `lib/status.ts`) have been deleted,
-along with their now-unused entries in `redux/tag-types.ts`.
+Routes live under `app/dashboard/` with `app/login/`; the public site lives in the
+`app/(site)/` route group, whose layout (`components/layout/SiteShell.tsx`) holds
+the header, footer, ambient layer and analytics. The dashboard has none of them.
 
-The product/order/activity types still in `types/common.ts` are unused by the
-public site but are left in place until the dashboard settles its own shapes.
+| Route | Who | Screen |
+|---|---|---|
+| `/dashboard` | all | Work queue; revenue cards and chart for admins |
+| `/dashboard/orders` | all | List, pipeline board, detail with payments and history |
+| `/dashboard/leads` | all | Contact form enquiries, convert to order |
+| `/dashboard/sales` | admin | Received money, breakdowns, dues, CSV export |
+| `/dashboard/projects`, `/products`, `/categories` | admin | Website content |
+| `/dashboard/users` | admin | Team accounts |
+| `/dashboard/settings` | all | Profile and password; website settings for admins |
+
+- UI: `components/dashboard/`, shared controls in `ui.tsx`, Tailwind utilities over
+  the theme tokens. Menu and access rules: `utils/drawerItems.ts`.
+- The client guard is for convenience. The API enforces every permission.
+- The token is kept in `localStorage`. A 401 clears it and opens `/login`; a 403
+  means signed in but not allowed. There is no silent refresh.
+
+### Orders and sales
+
+- Totals, paid, due and payment status are computed by the API.
+- Order status: pending, confirmed, in_progress, review, delivered, completed,
+  on_hold, cancelled. Orders are never deleted; wrong payments are voided with a
+  reason.
+- Staff create and update orders and add payments. Admins also change prices,
+  cancel, reopen and void.
+- Sales are non-voided payments, converted to BDT at each payment's rate and
+  grouped by Asia/Dhaka date. Money on a cancelled order counts until voided.
+
+### Image upload
+
+`services/compressImage.ts` converts to WebP (JPEG where unsupported), longest side
+up to 1600px, at most 120 KB. `app/api/upload/route.ts` checks the caller is an
+admin through `/auth/me`, then does a signed Cloudinary upload into `isc/projects`
+or `isc/products`. Replaced or removed images stay in Cloudinary.

@@ -9,8 +9,11 @@ import { WorkGrid } from "@/components/sections/WorkCard";
 import { CldImg } from "@/components/ui/CldImg";
 import { Icon } from "@/components/ui/Icon";
 import { JsonLd } from "@/components/ui/JsonLd";
+import { RichText } from "@/components/ui/RichText";
 import { getPortfolio, getPortfolioItem, getSettings, getTestimonials } from "@/lib/api";
 import { cld } from "@/lib/cloudinary";
+import { label } from "@/lib/format";
+import { excerpt } from "@/lib/richText";
 import { breadcrumbSchema, caseStudySchema } from "@/lib/schema";
 import { pageOg } from "@/lib/site";
 import { categoryId, categoryName } from "@/lib/utils";
@@ -29,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const image = item.thumbnail ? cld(item.thumbnail, { w: 1200, h: 630 }) : undefined;
   return {
     title: item.metaTitle || item.title,
-    description: item.metaDescription || item.description,
+    description: item.metaDescription || excerpt(item.description, 160),
     alternates: { canonical: `/work/${item.slug}` },
     openGraph: pageOg(`/work/${item.slug}`, image ? { images: [{ url: image, width: 1200, height: 630 }] } : {}),
   };
@@ -65,7 +68,7 @@ export default async function WorkDetailPage({ params }: Props) {
       <PageHero
         eyebrow={cat ?? "Case study"}
         title={item.title}
-        lead={item.description}
+        lead={item.metaDescription || excerpt(item.description, 180)}
         crumbs={[{ href: "/", label: "Home" }, { href: "/work", label: "Work" }, { label: item.title }]}
       />
 
@@ -81,14 +84,7 @@ export default async function WorkDetailPage({ params }: Props) {
 
           <div className="detail-grid">
             <div>
-              <div className="prose reveal">
-                {item.description
-                  .split(/\n\s*\n/)
-                  .filter(Boolean)
-                  .map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
-              </div>
+              <RichText value={item.description} className="reveal" />
 
               {item.gallery && item.gallery.length > 0 && (
                 <div className="gallery" data-stagger>
@@ -119,6 +115,12 @@ export default async function WorkDetailPage({ params }: Props) {
                   <li>
                     <span>Category</span>
                     <b>{cat}</b>
+                  </li>
+                )}
+                {item.status && (
+                  <li>
+                    <span>Status</span>
+                    <b>{label(item.status)}</b>
                   </li>
                 )}
                 {item.liveUrl && (

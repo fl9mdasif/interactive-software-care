@@ -6,7 +6,7 @@ Read this first, then `docs/architecture.md` (how the app is built) and `docs/de
 
 The agency's own public website. Prospects judge the agency's skill by it, so it must look and behave at least as well as client work. Its business job is one thing: turn visitors into leads through the contact form.
 
-No payments. No public accounts. No uploads on the public site.
+The same app holds the team dashboard (`/dashboard`) for orders, sales and content. No online payments. No public accounts. No uploads on the public site.
 
 ## Rules
 
@@ -19,7 +19,7 @@ No payments. No public accounts. No uploads on the public site.
 7. **Accessibility is part of done.** Visible focus ring, labelled inputs, `aria-*` on menu and form, no horizontal scroll at 320px.
 8. **Keep the lead form's honeypot.** The hidden `website` field must stay empty and hidden. Never remove it.
 9. **No secrets in the client.** Only `NEXT_PUBLIC_*` variables, and only non-secret values in them.
-10. **Dashboard groundwork is not public-site code.** `authApi`, `userApi`, `categoryApi` and `services/ImageUploader.tsx` exist for Phase 4. Nothing in `app/` may import them yet. (The older `productApi`, `orderApi`, `activityApi` and `lib/status.ts` have been deleted.)
+10. **Keep the public site and dashboard apart.** Public pages live in `app/(site)/`; dashboard code in `app/dashboard/` and `components/dashboard/`. Public pages import nothing from the dashboard.
 11. **Booking degrades, never breaks.** `CAL.link` may be empty. `BookMeeting` falls back to `/book`, and `/book` falls back to the lead form. Never render a dead button or an empty calendar panel.
 12. **Analytics comes from settings, never hardcoded.** No tag loads unless the admin has set its ID.
 
@@ -57,7 +57,7 @@ Run the server (`../server`, `npm run dev`, port 5000) for live data. Without it
 | 1 | Scaffold, design system port, layout, home page | Done |
 | 2 | Services, work list and case-study pages, contact page with lead form | Done |
 | 3 | SEO polish, OG images, sitemap, analytics, booking, error boundaries | Done |
-| 4 | Admin dashboard (auth, leads pipeline, content CRUD, Cloudinary upload) | Future |
+| 4 | Admin dashboard (orders, sales, leads, projects, products, users, Cloudinary upload) | Built; services and testimonials editors still to do |
 
 Phase 3 shipped: `app/sitemap.ts`, `app/robots.ts`, `app/icon.svg`, `app/apple-icon.tsx`,
 `app/manifest.ts`, `opengraph-image.tsx` on every route (shared renderer in `lib/og.tsx`),

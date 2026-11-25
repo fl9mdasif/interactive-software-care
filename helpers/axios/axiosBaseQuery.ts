@@ -1,7 +1,9 @@
 import type { BaseQueryFn } from "@reduxjs/toolkit/query";
-import { AxiosRequestConfig, AxiosError } from "axios";
+import { AxiosRequestConfig } from "axios";
 import { instance as axiosInstance } from "./axiosInstance";
-import { TMeta, TApiError } from "@/types/common";
+import { authKey } from "@/contains/authKey";
+import { IGenericErrorMessage, ResponseSuccessType, TMeta } from "@/types/common";
+import { getFromLocalStorage, removeFromLocalStorage } from "@/utils/local-storage";
 
 export const axiosBaseQuery =
   (
@@ -30,15 +32,19 @@ export const axiosBaseQuery =
             "Content-Type": contentType || "application/json",
           },
         });
-        return result;
+        const { data: body, meta: pageInfo } = result as unknown as ResponseSuccessType;
+        return { data: body, meta: pageInfo };
       } catch (axiosError) {
-        const error = axiosError as AxiosError;
-        const err = (error.response?.data as TApiError) || error;
-        return {
-          error: {
-            status: error.response?.status || 500,
-            data: err.message || error.message || "An unexpected error occurred",
-          },
-        };
+        // The response interceptor has already reduced the failure to this shape.
+        const error = axiosError as IGenericErrorMessage;
+        const status = error.statusCode || 500;
+
+        // The stored token is no longer accepted: drop it and sign in again.
+        if (status === 401 && getFromLocalStorage(authKey) && typeof window !== "undefined") {
+          removeFromLocalStorage(authKey);
+          window.location.assign("/login");
+        }
+
+        return { error: { status, data: error.message || "An unexpected error occurred" } };
       }
     };
